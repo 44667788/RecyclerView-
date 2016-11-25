@@ -36,6 +36,8 @@ public class MainActivity extends AppCompatActivity {
                                     adapter.addData(2);
                                 }
                                 adapter.setLoading(false);
+                                //如果超过50个item 不再加载，实际开发中可以通过判定有没有更多的数据的方式来决定要不要加载更多
+                                adapter.setCanLoadMore(adapter.getItemCount() <= 50);
                             }
                         });
                     }

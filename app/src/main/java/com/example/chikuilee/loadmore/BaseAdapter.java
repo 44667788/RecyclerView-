@@ -24,6 +24,7 @@ public class BaseAdapter<T> extends RecyclerView.Adapter<BaseViewHolder> {
 
     private boolean isLoading;
     private int visibleThreshold = 5;
+    private boolean canLoadMore = true;
     OnLoadingMore loadingMore;
 
     public BaseAdapter(RecyclerView recyclerView) {
@@ -36,7 +37,8 @@ public class BaseAdapter<T> extends RecyclerView.Adapter<BaseViewHolder> {
                 int lastPosition = layoutManager.findLastVisibleItemPosition();
                 Log.i("lastPosition --> ", lastPosition + "");
                 Log.i("itemCount  --> ", itemCount + " ");
-                if (!isLoading && (lastPosition >= (itemCount - visibleThreshold))) {
+
+                if (canLoadMore && !isLoading && (lastPosition >= (itemCount - visibleThreshold))) {
                     if (loadingMore != null) {
                         isLoading = true;
                         loadingMore.onLoadMore();
@@ -64,8 +66,14 @@ public class BaseAdapter<T> extends RecyclerView.Adapter<BaseViewHolder> {
     @Override
     public void onBindViewHolder(BaseViewHolder holder, int position) {
         if (getItemViewType(position) == TYPE_LOAD_MORE) {
-//            ProgressBar progressBar = (ProgressBar) holder.itemView;
-//            progressBar.setIndeterminate(true);
+            View itemView = holder.itemView;
+            if (canLoadMore && isLoading) {
+                if (itemView.getVisibility() != View.VISIBLE) {
+                    itemView.setVisibility(View.VISIBLE);
+                }
+            } else if (itemView.getVisibility() == View.VISIBLE) {
+                itemView.setVisibility(View.GONE);
+            }
         } else {
             TextView textView = (TextView) holder.itemView;
             textView.setText(String.valueOf(position));
@@ -98,6 +106,10 @@ public class BaseAdapter<T> extends RecyclerView.Adapter<BaseViewHolder> {
     public void addData(T t) {
         dataSet.add(t);
         notifyDataSetChanged();
+    }
+
+    public void setCanLoadMore(boolean canLoadMore) {
+        this.canLoadMore = canLoadMore;
     }
 
     interface OnLoadingMore {
